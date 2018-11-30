@@ -54,8 +54,9 @@ $box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16),
     background: white;
     animation: window-pop-in .3s;
     animation-timing-function: $maximize-timing;
-    border: 1px solid #ccc;
+    border: 5px solid #ccc;
     border-radius: 6px;
+    box-sizing: border-box;
     flex-shrink: 0;
     box-shadow: $box-shadow;
     transition: width $maximize-duration $maximize-timing, height $maximize-duration $maximize-timing, left $maximize-duration $maximize-timing, top $maximize-duration $maximize-timing;
@@ -78,6 +79,7 @@ $box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16),
         align-items: center;
         border-bottom: 1px solid $divider-color;
         padding: $padding;
+        user-select: none;
 
         &.draggable {
             cursor: move;

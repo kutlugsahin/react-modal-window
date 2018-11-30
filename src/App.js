@@ -16,7 +16,7 @@ class App extends Component {
     return (
       <div className="App">
         <button onClick={this.openModal}>Toggle window</button>
-        <Modal draggable overlay isOpen={this.state.isModalOpen} onClose={() => this.setState({isModalOpen: false})}>
+        <Modal snapToWindow draggable overlay isOpen={this.state.isModalOpen} onClose={() => this.setState({isModalOpen: false})}>
 
         </Modal>
       </div>

@@ -11,6 +11,7 @@ interface ModalProps {
 	draggable: boolean;
 	maximizable: boolean;
 	onClose: () => void;
+	snapToWindow: boolean;
 }
 
 interface ModalState {
@@ -23,16 +24,19 @@ interface ModalState {
 interface DragContext {
 	startPosition: { x: number; y: number };
 	initialTranslation: { x: number; y: number };
+	box: ClientRect | DOMRect | null;
 }
 
 class Modal extends Component<ModalProps, ModalState> {
 	private domNode: Element | null = null;
+	windowRef: React.RefObject<HTMLDivElement>;
 	constructor(props: ModalProps) {
 		super(props);
 		this.getWindowTranslation = this.getWindowTranslation.bind(this);
 		this.onDragEnd = this.onDragEnd.bind(this);
 		this.onDragStart = this.onDragStart.bind(this);
 		this.onDragMove = this.onDragMove.bind(this);
+		this.windowRef = React.createRef();
 		this.state = {
 			maximized: false,
 			render: false,
@@ -79,6 +83,7 @@ class Modal extends Component<ModalProps, ModalState> {
 				dragContext: {
 					startPosition: { x, y },
 					initialTranslation: { ...this.state.windowTranslate },
+					box: this.windowRef.current ? this.windowRef.current.getBoundingClientRect() : null
 				}
 			});
 		}
@@ -86,12 +91,29 @@ class Modal extends Component<ModalProps, ModalState> {
 
 	onDragMove(x: number, y: number) {
 		if (this.state.dragContext) {
-			const { startPosition, initialTranslation } = this.state.dragContext;
+			const { startPosition, initialTranslation, box } = this.state.dragContext;
+
+			const deltaX = x - startPosition.x;
+			const deltaY = y - startPosition.y
+
+			let newTranslationX = initialTranslation.x + deltaX;
+			let newTranslationY = initialTranslation.y + deltaY;
+
+			if (this.props.snapToWindow && box) {
+				const translateMinX = 0 - box.left + initialTranslation.x;
+				if (newTranslationX < translateMinX) newTranslationX = translateMinX;
+				const translateMaxX = window.innerWidth - box.right + initialTranslation.x;
+				if (newTranslationX > translateMaxX) newTranslationX = translateMaxX;
+				const translateMinY = 0 - box.top + initialTranslation.y;
+				if (newTranslationY < translateMinY) newTranslationY = translateMinY;
+				const translateMaxY = window.innerHeight - box.bottom + initialTranslation.y;
+				if (newTranslationY > translateMaxY) newTranslationY = translateMaxY;
+			}
 
 			this.setState({
 				windowTranslate: {
-					x: initialTranslation.x + x - startPosition.x,
-					y: initialTranslation.y + y - startPosition.y,
+					x: newTranslationX,
+					y: newTranslationY,
 				}
 			})
 		}
@@ -128,9 +150,17 @@ class Modal extends Component<ModalProps, ModalState> {
 			})
 
 			return (
-				<div className={modalClasses} onMouseMove={event => this.onDragMove(event.clientX, event.clientY)} onMouseUp={this.onDragEnd}>
+				<div
+					className={modalClasses}
+					onMouseMove={event => this.onDragMove(event.clientX, event.clientY)}
+					onMouseUp={this.onDragEnd}
+				>
 					{this.props.overlay && <div className={overlayClasses} onClick={this.props.onClose} />}
-					<div className={windowClasses} style={this.getWindowTranslation()}>
+					<div
+						className={windowClasses}
+						style={this.getWindowTranslation()}
+						ref={this.windowRef}
+					>
 						<div className={headerClasses} onMouseDown={(event) => this.onDragStart(event.clientX, event.clientY)}>
 							<button onClick={() => this.setState({ maximized: !this.state.maximized })}>Max</button>
 						</div>
