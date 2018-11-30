@@ -1,0 +1,140 @@
+$maximize-timing: cubic-bezier(0.260, 1.125, 0.705, 0.970);
+$maximize-duration: .25s;
+$overlay-color: rgba(6, 33, 59, 0.65);
+$divider-color: #ddd;
+$padding: 10px 15px;
+$box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16),
+0 3px 6px rgba(0, 0, 0, 0.23);
+
+.modal {
+    position: fixed;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    perspective: 200px;
+    z-index: 1000;
+    pointer-events: none;
+
+    &.close {
+        .overlay {
+            animation: overlay-fade-out .2s forwards;
+        }
+
+        .window {
+            animation: window-pop-out .2s forwards;
+        }
+    }
+}
+
+.overlay {
+    position: fixed;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-color: $overlay-color;
+    animation: overlay-fade-in .2s forwards;
+    pointer-events: all;
+}
+
+.window {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    pointer-events: all;
+    z-index: 1001;
+    width: 80%;
+    height: 80%;
+    justify-self: center;
+    background: white;
+    animation: window-pop-in .3s;
+    animation-timing-function: $maximize-timing;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    flex-shrink: 0;
+    box-shadow: $box-shadow;
+    transition: width $maximize-duration $maximize-timing, height $maximize-duration $maximize-timing, left $maximize-duration $maximize-timing, top $maximize-duration $maximize-timing;
+
+    &.dragging {
+        transition: none;
+    }
+
+    &.maximize {
+        width: 100%;
+        height: 100%;
+        padding: -50px;
+        border-radius: 0;
+        left: 0 !important;
+        top: 0 !important;
+    }
+
+    .header {
+        display: flex;
+        align-items: center;
+        border-bottom: 1px solid $divider-color;
+        padding: $padding;
+
+        &.draggable {
+            cursor: move;
+        }
+
+        .title {
+            flex: 1;
+        }
+
+        .actions {}
+    }
+
+    .content {
+        flex: 1;
+        padding: $padding;
+    }
+
+    .footer {
+        border-top: 1px solid $divider-color;
+        padding: $padding;
+    }
+}
+
+@keyframes window-pop-in {
+    from {
+        transform: translateZ(-5px);
+    }
+    to {
+        transform: translateZ(0);
+    }
+}
+
+@keyframes window-pop-out {
+    from {
+        transform: translateZ(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateZ(-5px);
+        opacity: 0;
+    }
+}
+
+@keyframes overlay-fade-in {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes overlay-fade-out {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}

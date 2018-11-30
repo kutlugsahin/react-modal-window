@@ -1,27 +1,32 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
-
+import Modal from './modal';
 class App extends Component {
+  state = {
+    isModalOpen: false,
+  }
+
+  constructor() {
+    super();
+    this.openModal = this.openModal.bind(this);
+  }  
+
   render() {
     return (
       <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
+        <button onClick={this.openModal}>Toggle window</button>
+        <Modal draggable overlay isOpen={this.state.isModalOpen} onClose={() => this.setState({isModalOpen: false})}>
+
+        </Modal>
       </div>
     );
+  }
+
+  openModal() {
+    this.setState({
+      isModalOpen: !this.state.isModalOpen
+    });
   }
 }
 
